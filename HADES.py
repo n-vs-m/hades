@@ -13,10 +13,11 @@
 # of Earth and HADES
 #
 # H.A.D.E.S
-# v0.6 - 08 dec 2015
+# v0.7 - 08 dec 2015
 # Nicolas Montgermont
 
 # changelog
+# v0.7 : english comments
 # v0.6 : hidden password for publication
 # v0.5 : add new_day check after 04AM
 #        add flush to log in real time
@@ -37,9 +38,9 @@ import time
 from datetime import datetime,date,timedelta
 from yahoo_finance import Share
 
-# CONSTANTES
-HOST = 'localhost'    # The remote host
-PORT = 8888              # The same port as used by the server
+# CONSTANTS
+HOST = 'localhost'      # The remote host
+PORT = 8888             # The same port as used by the server
 GOLD = Share('XAUUSD=X')
 PI = math.pi
 DATE_LIMITE = date(2020,12,31)
@@ -62,10 +63,10 @@ with open("/home/nico/code/pass_client.txt", "r") as keyfile:
     PASS_CLIENT = keyfile.read().strip()
 
 #################################
-#### FONCTIONS ASTRONOMIE
+#### FUNCTIONS ASTRONOMY
 #################################
 
-# angle entre terre et pluton
+# Angle Between Earth and Pluto
 def compute_angle(date_local):
     angle = [0,0,0]
     m = ephem.Sun()
@@ -77,7 +78,7 @@ def compute_angle(date_local):
     angle[2] = cmp(m2.hlat*m.a_dec,0)
     return angle
     
-# calcul du prochain evenement
+# Computing next event
 def next_date(date_local):
     global next_pi
     global next_2pi3
@@ -106,7 +107,7 @@ def next_date(date_local):
     #print next
     #next_angle = next[0]
 
-# calcul des dates des aspects
+# computing dates of aspects
 def compute_aspects(date_local):
     global next_pi
     global next_2pi3
@@ -150,10 +151,10 @@ def compute_aspects(date_local):
         	  next_cpar = date_local+timedelta(days=i)
 
 #################################
-#### FONCTIONS TWS
+#### FUNCTIONS TWS
 #################################
                 
-# date au format TWS
+# date in TWS format
 def get_local_date_TWS(decalage):
     delta = timedelta(days=decalage)
     zone = 'Europe/London'
@@ -172,7 +173,7 @@ def portfolio():
     print "SHARES:   NAME |  NBR |  TYPE |  CUR"
     print "        %s |   %02d | %s |  %s" % (shares[1],int(shares[4]),shares[2],shares[3])
     
-# acheter de l'or    
+# Buy Gold
 def buy_gold(qty):
   global buy 
   update_data()
@@ -196,7 +197,7 @@ def buy_gold(qty):
     print "BUY: NOT enough money (" + str(money) +"$) to buy shares (" + str(shares) +"$)" 
   buy = 0         
   
-# SELL GOLD   
+# Sell Gold
 def sell_gold(qty):
   global sell
   update_data()
@@ -222,7 +223,7 @@ def isopen():
   return 1 #getopenmarket('hades')
     
 #################################
-#### FONCTIONS ALGOS
+#### FUNCTIONS ALGO
 #################################
 
 def update_data():
@@ -243,7 +244,7 @@ def status():
     if (date_local == next_pi):
         to_print = u'\u260d' +' (Opposition) day: buying GOLD'
     elif (date_local == next_2pi3):
-        to_print = u'\u25b3' +' (Trine) day: buying GOLD' #changer
+        to_print = u'\u25b3' +' (Trine) day: selling GOLD'
     elif (date_local == next_pi2):
         to_print = u'\u25a1' +' (Square) day: buying GOLD'
     elif (date_local == next_pi3):
