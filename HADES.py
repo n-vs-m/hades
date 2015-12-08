@@ -15,7 +15,11 @@
 # H.A.D.E.S
 # v0.7 - 08 dec 2015
 # Nicolas Montgermont
-
+#
+# Copyleft: This is a free work, you can copy,
+# distribute, and modify it under the terms of the
+# Free Art License http://artlibre.org/licence/lal/en/
+#
 # changelog
 # v0.7 : english comments
 # v0.6 : hidden password for publication
