@@ -13,7 +13,7 @@
 # of Earth and HADES
 #
 # H.A.D.E.S
-# v0.7 - 08 dec 2015
+# v0.8 - 16 dec 2015
 # Nicolas Montgermont
 #
 # Copyleft: This is a free work, you can copy,
@@ -21,6 +21,7 @@
 # Free Art License http://artlibre.org/licence/lal/en/
 #
 # changelog
+# v0.8 : added minor aspects : pi/4, 3pi/4, 2pi/5, 4pi/5
 # v0.7 : english comments
 # v0.6 : hidden password for publication
 # v0.5 : add new_day check after 04AM
@@ -58,6 +59,11 @@ next_pi3 = DATE_LIMITE
 next_0 = DATE_LIMITE
 next_par = DATE_LIMITE
 next_cpar = DATE_LIMITE
+next_pi4 = DATE_LIMITE
+next_3pi4 = DATE_LIMITE
+next_2pi5 = DATE_LIMITE
+next_4pi5 = DATE_LIMITE
+
 buy = 0
 sell = 0
 status_hades = '' 
@@ -91,6 +97,11 @@ def next_date(date_local):
     global next_0
     global next_par
     global next_cpar
+    global next_pi4
+    global next_3pi4
+    global next_2pi5
+    global next_4pi5
+
     global next_angle
     dates = []
     if (next_pi >= date_local) and (next_pi < DATE_LIMITE):
@@ -107,6 +118,14 @@ def next_date(date_local):
         dates.append((next_par,u'\u2225' +' (Parallel)'))
     if (next_cpar >= date_local) and (next_cpar < DATE_LIMITE):
         dates.append((next_cpar,u'\u2226' +' (Contraparallel)'))
+    if (next_pi4 >= date_local) and (next_pi4 < DATE_LIMITE):
+        dates.append((next_pi4,u'\u2220' +' (Semi square)'))
+    if (next_3pi4 >= date_local) and (next_3pi4 < DATE_LIMITE):
+        dates.append((next_3pi4,u'\u26bc' +' (Sesquiquadrate)'))
+    if (next_2pi5 >= date_local) and (next_2pi5 < DATE_LIMITE):
+        dates.append((next_2pi5,u'\u0051' +' (Quintile)'))
+    if (next_4pi5 >= date_local) and (next_4pi5 < DATE_LIMITE):
+        dates.append((next_4pi5,u'\u0062\u0051' +' (Biquintile)'))
     next_angle = sorted(dates)
     #print next
     #next_angle = next[0]
@@ -120,6 +139,11 @@ def compute_aspects(date_local):
     global next_0
     global next_par
     global next_cpar
+    global next_pi4
+    global next_3pi4
+    global next_2pi5
+    global next_4pi5
+
     diff_pi = 7
     diff_2pi3 = 7
     diff_pi2 = 7
@@ -127,29 +151,48 @@ def compute_aspects(date_local):
     diff_0 = 7
     diff_par = 7
     diff_cpar = 7
+    diff_pi4 = 7
+    diff_3pi4 = 7
+    diff_2pi5 = 7
+    diff_4pi5 = 7
     for i in range(-1,100):
         local_angle = compute_angle(date_local+timedelta(days=i))
-        #print local_angle
-        if (abs(local_angle[0]-PI) < diff_pi):
+        
+        # Ascension
+        if (abs(local_angle[0]-PI) < diff_pi):          #opposiiton
             diff_pi = abs(local_angle[0]-PI)
             next_pi = date_local+timedelta(days=i)
-        if (abs(local_angle[0]-2*PI/3) < diff_2pi3):
+        if (abs(local_angle[0]-2*PI/3) < diff_2pi3):    #trigone
             diff_2pi3 = abs(local_angle[0]-2*PI/3)
             next_2pi3 = date_local+timedelta(days=i)
-        if (abs(local_angle[0]-PI/2) < diff_pi2):
+        if (abs(local_angle[0]-PI/2) < diff_pi2):       #square
             diff_pi2 = abs(local_angle[0]-PI/2)
             next_pi2 = date_local+timedelta(days=i)
-        if (abs(local_angle[0]-PI/3) < diff_pi3):
+        if (abs(local_angle[0]-PI/3) < diff_pi3):       #sextile
             diff_pi3 = abs(local_angle[0]-PI/3)
             next_pi3 = date_local+timedelta(days=i)
-        if (abs(local_angle[0]-0)<diff_0):
+        if (abs(local_angle[0]-0)<diff_0):              #conjonction
             diff_0 = abs(local_angle[0]-0)
             next_0 = date_local+timedelta(days=i)
-        if (local_angle[2] >= 0): #parallel
+        if (abs(local_angle[0]-PI/4)<diff_pi4):         #semisquare
+            diff_pi4 = abs(local_angle[0]-PI/4)
+            next_pi4 = date_local+timedelta(days=i)
+        if (abs(local_angle[0]-3*PI/4)<diff_3pi4):      #sesquisquare
+            diff_3pi4 = abs(local_angle[0]-3*PI/4)
+            next_3pi4 = date_local+timedelta(days=i)
+        if (abs(local_angle[0]-2*PI/5)<diff_2pi5):      #quintile
+            diff_2pi5 = abs(local_angle[0]-2*PI/5)
+            next_2pi5 = date_local+timedelta(days=i)
+        if (abs(local_angle[0]-4*PI/5)<diff_4pi5):      #biquintile
+            diff_4pi5 = abs(local_angle[0]-4*PI/5)
+            next_4pi5 = date_local+timedelta(days=i)
+
+        # Declination
+        if (local_angle[2] >= 0):                       #parallel
             if (local_angle[1] < diff_par):
         	  diff_par = local_angle[1]
         	  next_par = date_local+timedelta(days=i)
-        else: # contraparallel
+        else:                                           #contraparallel
             if (local_angle[1] < diff_cpar):
         	  diff_cpar = local_angle[1]
         	  next_cpar = date_local+timedelta(days=i)
@@ -257,8 +300,16 @@ def status():
         to_print = u'\u260c' +' (Conjonction) day: selling GOLD'
     elif (date_local == next_par):
         to_print = u'\u2225' +' (Parallel) day: selling GOLD'
-    elif (date_local == next_0):
+    elif (date_local == next_cpar):
         to_print = u'\u2226' +' (Contraparallel) day: buying GOLD'
+    elif (date_local == next_pi4):
+        to_print = u'\u2220' +' (Semisquare) day: buying GOLD'
+    elif (date_local == next_3pi4):
+        to_print = u'\u26bc' +' (Sesquiquadrate) day: buying GOLD'
+    elif (date_local == next_2pi5):
+        to_print = u'\u0051' +' (Quintile) day: selling GOLD'
+    elif (date_local == next_4pi5):
+        to_print = u'\u0062\u0051' +' (Biquintile) day: selling GOLD'
     else:
         to_print = 'NEXT: ' + next_angle[0][1] + ' the ' + str(next_angle[0][0])
     status_hades += to_print
@@ -288,6 +339,14 @@ def new_day():
         sell += 3
     if (date_local == next_cpar):
         buy += 3
+    if (date_local == next_pi4):
+        buy += 1
+    if (date_local == next_3pi4):
+        buy += 1
+    if (date_local == next_2pi5):
+        sell += 1
+    if (date_local == next_4pi5):
+        sell += 1
 
 #################################
 #### MAIN
