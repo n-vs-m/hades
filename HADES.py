@@ -255,7 +255,7 @@ def sell_gold(qty):
     print "SELL: GOLD "+str(local_qty)+" shares at " + str(prix) + "$"  
     order = '{"pass_client": "'+ PASS_CLIENT +'",'
     order += '"contract": {"m_symbol": "XAUUSD","m_secType": "CMDTY","m_exchange": "SMART","m_currency": "USD"},'
-    order +='"order": {"m_action": "SELL","m_totalQuantity": '+ str(qty)+', "m_orderType": "MKT", "m_lmtPrice":"", "m_tif": "GTD","m_goodAfterTime": "", "m_goodTillDate": "'+get_local_date(5)+' 23:59:59"}}'
+    order +='"order": {"m_action": "SELL","m_totalQuantity": '+ str(qty)+', "m_orderType": "MKT", "m_lmtPrice":"", "m_tif": "GTD","m_goodAfterTime": "", "m_goodTillDate": "'+get_local_date_TWS(5)+' 23:59:59"}}'
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((HOST, PORT))
     s.sendall(order)
