@@ -13,7 +13,7 @@
 # of Earth and HADES
 #
 # H.A.D.E.S
-# v0.8 - 16 dec 2015
+# v0.9 - 15 fev 2016
 # Nicolas Montgermont
 #
 # Copyleft: This is a free work, you can copy,
@@ -21,6 +21,7 @@
 # Free Art License http://artlibre.org/licence/lal/en/
 #
 # changelog
+# v0.9 : fix selling error : get_local_date -> get_local_date_TWS
 # v0.8 : added minor aspects : pi/4, 3pi/4, 2pi/5, 4pi/5
 # v0.7 : english comments
 # v0.6 : hidden password for publication
