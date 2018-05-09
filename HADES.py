@@ -13,7 +13,7 @@
 # of Earth and HADES
 #
 # H.A.D.E.S
-# v0.9 - 15 fev 2016
+# v1.0 - 09 may 2018
 # Nicolas Montgermont
 #
 # Copyleft: This is a free work, you can copy,
