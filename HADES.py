@@ -21,6 +21,7 @@
 # Free Art License http://artlibre.org/licence/lal/en/
 #
 # changelog
+# v1.0 : update gold price with new adm server function
 # v0.9 : fix selling error : get_local_date -> get_local_date_TWS
 # v0.8 : added minor aspects : pi/4, 3pi/4, 2pi/5, 4pi/5
 # v0.7 : english comments
@@ -45,11 +46,16 @@ from datetime import datetime,date,timedelta
 from yahoo_finance import Share
 
 # CONSTANTS
+DEBUG = 0
 HOST = 'localhost'      # The remote host
 PORT = 8888             # The same port as used by the server
-GOLD = Share('XAUUSD=X')
+HOST_MARKET = 'rybn.org'
+PORT_MARKET = 8886
+#GOLD = Share('XAUUSD=X')
+prix = 1000
+
 PI = math.pi
-DATE_LIMITE = date(2020,12,31)
+DATE_LIMITE = date(2022,12,31)
 
 # VARIABLES
 current_day = -1
@@ -73,6 +79,42 @@ status_hades = ''
 with open("/home/nico/code/pass_client.txt", "r") as keyfile:
     PASS_CLIENT = keyfile.read().strip()
 
+# function socket with timeout
+def recv_timeout(the_socket,timeout=2):
+    #make socket non blocking
+    the_socket.setblocking(0)
+     
+    #total data partwise in an array
+    total_data=[];
+    data='';
+     
+    #beginning time
+    begin=time.time()
+    while 1:
+        #if you got some data, then break after timeout
+        if total_data and time.time()-begin > timeout:
+            break
+         
+        #if you got no data at all, wait a little longer, twice the timeout
+        elif time.time()-begin > timeout*2:
+            break
+         
+        #recv something
+        try:
+            data = the_socket.recv(8192)
+            if data:
+                total_data.append(data)
+                #change the beginning time for measurement
+                begin = time.time()
+            else:
+                #sleep for sometime to indicate a gap
+                time.sleep(0.1)
+        except:
+            pass
+     
+    #join all parts to make final string
+    return ''.join(total_data)
+    
 #################################
 #### FUNCTIONS ASTRONOMY
 #################################
@@ -201,7 +243,22 @@ def compute_aspects(date_local):
 #################################
 #### FUNCTIONS TWS
 #################################
-                
+
+# get price
+
+def get_gold_price():
+    order = '{"pass_client": "'+ PASS_CLIENT +'",'
+    order += '"contract": {"m_symbol": "XAUUSD","m_secType": "CMDTY","m_exchange": "SMART","m_currency": "USD"},'
+    order += '"genericTicklist": "","snapshot":1}'
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((HOST_MARKET, PORT_MARKET))
+    s.sendall(order)
+    data_raw = recv_timeout(s)
+    s.close()
+    data = data_raw.split('\n')
+    result=json.loads(data[1])
+    return result['tickPrice']['price']    
+                    
 # date in TWS format
 def get_local_date_TWS(decalage):
     delta = timedelta(days=decalage)
@@ -225,7 +282,6 @@ def portfolio():
 def buy_gold(qty):
   global buy 
   update_data()
-  prix = GOLD.get_price()
   print prix
   # buy max
   local_qty = min(math.floor(money/(float(prix)+30)),qty)
@@ -249,7 +305,6 @@ def buy_gold(qty):
 def sell_gold(qty):
   global sell
   update_data()
-  prix = GOLD.get_price()
   local_qty = min(qty,shares)
   # pass order
   if (local_qty > 0):
@@ -277,6 +332,8 @@ def isopen():
 def update_data():
 	global money
 	global shares
+	global prix
+	prix = float(get_gold_price())
 	money = req_admxi.get_cash('hades')
 	tmp = req_admxi.get_portfolio('hades')
 	if not tmp:
@@ -352,20 +409,32 @@ def new_day():
 #################################
 #### MAIN
 #################################
-update_data()
-while 1:
-    tmp = datetime.now(pytz.timezone('Europe/London'))
-    date_local = tmp.date()
-    if (date_local.day != current_day) and (tmp.hour > 4):
-        new_day()
-    if buy > 0:
-        if isopen():
-            buy_gold(buy)
-    if sell > 0:
-        if isopen():
-            sell_gold(sell)
-    status()
-    print status_hades.encode('utf-8')
-    sys.stdout.flush()
-    time.sleep(600)
+if DEBUG == 1:
+	print('//// PORTFOLIO :')
+	portfolio()
+	print('//// CURRENT ORDERS :')
+	print(req_admxi.get_orders('hades'))
+	print('//// HISTORY :')
+	print(req_admxi.get_historicals('hades'))
+	print('///GOLD PRICE')
+	print get_gold_price()
+	sys.exit(0)
+	
+else: 	
+	update_data()
+	while 1:
+	    tmp = datetime.now(pytz.timezone('Europe/London'))
+	    date_local = tmp.date()
+	    if (date_local.day != current_day) and (tmp.hour > 4):
+	        new_day()
+	    if buy > 0:
+	        if isopen():
+	            buy_gold(buy)
+	    if sell > 0:
+	        if isopen():
+	            sell_gold(sell)
+	    status()
+	    print status_hades.encode('utf-8')
+	    sys.stdout.flush()
+	    time.sleep(600)
     
